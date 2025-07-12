@@ -7,8 +7,9 @@
         body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; background-color: #f4f4f9; }
         .container { padding: 2em; border: 1px solid #ccc; border-radius: 8px; background-color: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .mono { font-family: monospace; background: #eee; padding: 0.5em; border-radius: 4px; }
-        #status { margin-top: 1em; font-weight: bold; }
+        #status { margin-top: 1em; font-weight: bold; transition: color 0.3s; }
         .status-connecting { color: #3b82f6; }
+        .status-success { color: #22c55e; }
         .status-error { color: #ef4444; }
     </style>
 </head>
@@ -17,27 +18,40 @@
         <h1>P2P Web Proxy</h1>
         <p>Attempting to connect to Host ID:</p>
         <p><strong id="host-id" class="mono">Loading...</strong></p>
-        <p id="status">Connecting...</p>
+        <p id="status" class="status-connecting">Connecting...</p>
     </div>
     <script>
         const statusEl = document.getElementById('status');
         const hostIdEl = document.getElementById('host-id');
 
+        // --- Listen for status updates FROM the extension ---
+        window.addEventListener("message", (event) => {
+            if (event.source != window || !event.data.type) return;
+
+            if (event.data.type === 'P2P_PROXY_STATUS_UPDATE') {
+                console.log("Webpage: Received status update", event.data);
+                statusEl.textContent = event.data.message;
+                if (event.data.status === 'success') {
+                    statusEl.className = 'status-success';
+                } else {
+                    statusEl.className = 'status-error';
+                }
+            }
+        });
+
+        // --- Send connect request TO the extension ---
         const urlParams = new URLSearchParams(window.location.search);
         const hostId = urlParams.get('hostId');
         
         if (hostId) {
             hostIdEl.textContent = hostId;
             
-            // --- FIX: Wait a moment for the content script to load ---
-            // We add a small timeout to ensure the extension's content script
-            // has time to initialize its listener before we send the message.
             setTimeout(() => {
                 window.postMessage({
                     type: "P2P_PROXY_CONNECT",
                     hostId: hostId
                 }, "*");
-            }, 100); // 100 milliseconds is usually plenty of time.
+            }, 100);
 
         } else {
             hostIdEl.textContent = 'Not Found';
