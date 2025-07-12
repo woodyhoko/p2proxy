@@ -28,11 +28,17 @@
         
         if (hostId) {
             hostIdEl.textContent = hostId;
-            // Send a message to our content script
-            window.postMessage({
-                type: "P2P_PROXY_CONNECT",
-                hostId: hostId
-            }, "*");
+            
+            // --- FIX: Wait a moment for the content script to load ---
+            // We add a small timeout to ensure the extension's content script
+            // has time to initialize its listener before we send the message.
+            setTimeout(() => {
+                window.postMessage({
+                    type: "P2P_PROXY_CONNECT",
+                    hostId: hostId
+                }, "*");
+            }, 100); // 100 milliseconds is usually plenty of time.
+
         } else {
             hostIdEl.textContent = 'Not Found';
             statusEl.textContent = 'Error: No Host ID provided in the link.';
