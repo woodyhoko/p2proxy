@@ -1,0 +1,25 @@
+<!-- connect.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connect to P2P Proxy</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; }
+        .container { padding: 2em; border: 1px solid #ccc; border-radius: 8px; }
+        .mono { font-family: monospace; background: #eee; padding: 0.5em; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Connect to P2P Proxy Host</h1>
+        <p>To connect, copy the Host ID below and paste it into the P2P Proxy extension.</p>
+        <p>Host ID: <strong id="host-id" class="mono">Loading...</strong></p>
+    </div>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const hostId = urlParams.get('hostId');
+        document.getElementById('host-id').textContent = hostId || 'Not Found';
+    </script>
+</body>
+</html>
